@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace BlochSim.Model
 {
-    /// <summary>A kapu hatása a gömbön: forgatás Axis (egységvektor) körül Angle radiánnal (jobbkéz-szabály).</summary>
+    /// <summary>The gate's effect on the sphere: rotation around Axis (unit vector) by Angle radians (right-hand rule).</summary>
     public readonly struct RotationInfo
     {
         public readonly BlochVector Axis;
@@ -17,7 +17,8 @@ namespace BlochSim.Model
     {
         public string Name { get; }
         public Matrix2x2 Matrix { get; }
-        /// <summary>Az animációhoz: a mátrix globális fázistól eltekintve ennek a forgatásnak felel meg.</summary>
+
+        /// <summary>For the animation: up to a global phase, the matrix corresponds to this rotation.</summary>
         public RotationInfo Rotation { get; }
 
         public Gate(string name, Matrix2x2 matrix, RotationInfo rotation)
@@ -36,7 +37,7 @@ namespace BlochSim.Model
         public override string ToString() => Name;
     }
 
-    /// <summary>A beépített kapuk gyára.</summary>
+    /// <summary>Factory for the built-in gates.</summary>
     public static class Gates
     {
         private static readonly BlochVector AxisX = new BlochVector(1, 0, 0);
@@ -72,7 +73,6 @@ namespace BlochSim.Model
             }
         }
 
-        /// <summary>Fáziskapu: diag(1, e^{i phi}). A gömbön phi szögű forgatás z körül.</summary>
         public static Gate Phase(double phi) => PhaseGate("P(" + Deg(phi) + ")", phi);
 
         public static Gate S => PhaseGate("S", Math.PI / 2.0);

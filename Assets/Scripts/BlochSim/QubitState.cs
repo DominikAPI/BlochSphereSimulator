@@ -3,19 +3,17 @@ using System.Numerics;
 
 namespace BlochSim.Model
 {
-    /// <summary>Pont a Bloch-gömbön (x, y, z), Unity-független.</summary>
+    /// <summary>Point on the Bloch sphere (x, y, z), Unity-independent.</summary>
     public readonly struct BlochVector
     {
-        public readonly double X;
-        public readonly double Y;
-        public readonly double Z;
+        public readonly double X, Y, Z;
 
         public BlochVector(double x, double y, double z) { X = x; Y = y; Z = z; }
 
-        /// <summary>Polárszög a +z tengelytől, [0, pi].</summary>
+        /// <summary>Polar angle from the +z axis, [0, pi].</summary>
         public double Theta => Math.Acos(Math.Max(-1.0, Math.Min(1.0, Z)));
 
-        /// <summary>Azimutszög az x tengelytől, [0, 2pi).</summary>
+        /// <summary>Azimuthal angle from the x axis, [0, 2pi).</summary>
         public double Phi
         {
             get
@@ -27,13 +25,30 @@ namespace BlochSim.Model
 
         public double Length => Math.Sqrt(X * X + Y * Y + Z * Z);
 
+        /// <summary>
+        /// Rotation around the (unit) axis by angle radians, right-hand rule.
+        /// </summary>
+        public BlochVector Rotated(BlochVector axis, double angle)
+        {
+            double c = Math.Cos(angle), s = Math.Sin(angle);
+            double dot = axis.X * X + axis.Y * Y + axis.Z * Z;
+            double cx = axis.Y * Z - axis.Z * Y;
+            double cy = axis.Z * X - axis.X * Z;
+            double cz = axis.X * Y - axis.Y * X;
+
+            return new BlochVector(
+                X * c + cx * s + axis.X * dot * (1 - c),
+                Y * c + cy * s + axis.Y * dot * (1 - c),
+                Z * c + cz * s + axis.Z * dot * (1 - c));
+        }
+
         public override string ToString() => $"({X:0.###}, {Y:0.###}, {Z:0.###})";
     }
 
     /// <summary>
-    /// Egy qubit tiszta állapota: alpha|0> + beta|1>.
-    /// A konstruktor normalizál. Megjegyzés: default(QubitState) érvénytelen (nullvektor),
-    /// mindig a konstruktort vagy a statikus tagokat használd.
+    /// Pure state of a qubit: alpha|0> + beta|1>.
+    /// The constructor normalizes. Note: default(QubitState) is invalid (null vector),
+    /// always use the constructor or the static members.
     /// </summary>
     public readonly struct QubitState
     {
@@ -72,15 +87,6 @@ namespace BlochSim.Model
             Complex ab = Complex.Conjugate(Alpha) * Beta;
             return new BlochVector(2.0 * ab.Real, 2.0 * ab.Imaginary, Prob0 - Prob1);
         }
-
-        /// <summary>|<this|other>|^2. 1, ha az állapotok globális fázistól eltekintve azonosak.</summary>
-        public double Fidelity(QubitState other)
-        {
-            Complex overlap = Complex.Conjugate(Alpha) * other.Alpha + Complex.Conjugate(Beta) * other.Beta;
-            return overlap.Magnitude * overlap.Magnitude;
-        }
-
-        public bool ApproxEquals(QubitState other, double tol = 1e-9) => Math.Abs(1.0 - Fidelity(other)) < tol;
 
         public override string ToString() => $"({Alpha.Real:0.###}{Alpha.Imaginary:+0.###;-0.###}i)|0> + ({Beta.Real:0.###}{Beta.Imaginary:+0.###;-0.###}i)|1>";
     }

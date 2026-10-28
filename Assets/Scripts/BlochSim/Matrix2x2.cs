@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace BlochSim.Model
 {
-    /// <summary>2x2-es komplex mátrix (egy qubit kapuinak ábrázolására).</summary>
+    /// <summary>2x2 complex matrix (for representing single-qubit gates).</summary>
     public readonly struct Matrix2x2
     {
         public readonly Complex M00;
@@ -20,7 +20,7 @@ namespace BlochSim.Model
         public static Matrix2x2 Identity =>
             new Matrix2x2(Complex.One, Complex.Zero, Complex.Zero, Complex.One);
 
-        /// <summary>a * b: a vektorra előbb b hat, aztán a.</summary>
+        
         public static Matrix2x2 operator *(Matrix2x2 a, Matrix2x2 b)
         {
             return new Matrix2x2(
@@ -34,7 +34,7 @@ namespace BlochSim.Model
                                   M10 * s.Alpha + M11 * s.Beta);
         }
 
-        /// <summary>Konjugált transzponált.</summary>
+        /// <summary>Conjugate transpose.</summary>
         public Matrix2x2 Dagger()
         {
             return new Matrix2x2(
@@ -42,13 +42,5 @@ namespace BlochSim.Model
                 Complex.Conjugate(M01), Complex.Conjugate(M11));
         }
 
-        public bool IsUnitary(double tol = 1e-9)
-        {
-            Matrix2x2 p = Dagger() * this;
-            return (p.M00 - Complex.One).Magnitude < tol
-                && p.M01.Magnitude < tol
-                && p.M10.Magnitude < tol
-                && (p.M11 - Complex.One).Magnitude < tol;
-        }
     }
 }
