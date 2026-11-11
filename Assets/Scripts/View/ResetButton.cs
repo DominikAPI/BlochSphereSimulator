@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class ResetButton : MonoBehaviour
 {
     [SerializeField] private SimulationController simulation;
+    [SerializeField] private AngleSliders sliders;
 
     void Awake()
     {
@@ -14,5 +15,7 @@ public class ResetButton : MonoBehaviour
     private void ResetSimulation()
     {
         simulation.ResetCircuit();
+        sliders.ResetSliders();
+        Camera.main.GetComponent<OrbitCamera>().ResetView();
     }
 }

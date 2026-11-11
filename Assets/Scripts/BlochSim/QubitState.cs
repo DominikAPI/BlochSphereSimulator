@@ -25,6 +25,9 @@ namespace BlochSim.Model
 
         public double Length => Math.Sqrt(X * X + Y * Y + Z * Z);
 
+        public double Prob0 => Math.Max(0.0, Math.Min(1.0, (1.0 + Z) * 0.5));
+        public double Prob1 => 1.0 - Prob0;
+
         /// <summary>
         /// Rotation around the (unit) axis by angle radians, right-hand rule.
         /// </summary>

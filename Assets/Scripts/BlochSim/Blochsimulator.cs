@@ -117,10 +117,29 @@ namespace BlochSim.Model
 
         public QubitState FinalState(int id) => StateAfter(id, _circuit.Count);
 
+        /// <summary>A new state that ends up at the desired point at the end of the gate sequence (at the displayed position).</summary>
+        public StateEntry AddStateAtCurrent(QubitState desired, string label = null)
+            => AddState(BackPropagate(desired), label);
+
+        public void SetCurrentState(int id, QubitState desired)
+        {
+            Find(id).Initial = BackPropagate(desired);
+            Changed?.Invoke(ModelChangeKind.InitialChanged);
+        }
+
+        // The inverse of the gate sequence (in reverse order, per gate the conjugate transpose).
+        private QubitState BackPropagate(QubitState desired)
+        {
+            QubitState s = desired;
+            for (int i = _circuit.Count - 1; i >= 0; i--)
+                s = _circuit[i].Matrix.Dagger().Apply(s);
+            return s;
+        }
+
         private StateEntry Find(int id)
         {
             StateEntry e = _states.Find(x => x.Id == id);
-            return e ?? throw new ArgumentException("Nincs ilyen állapot: " + id);
+            return e ?? throw new ArgumentException("No such state: " + id);
         }
     }
 }
